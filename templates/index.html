@@ -1,0 +1,2045 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Download free student notes for Tamil, English, Statistics, Java, HTML and more.">
+    <title>Notes Dock</title>
+    <link rel="icon" href="{{ url_for('static', filename='assets/logo.png') }}">
+
+    <!-- External CSS (leave CDN as is) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Your own CSS (FIXED) -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #4f46e5;
+            --primary-dark: #3730a3;
+            --secondary-color: #06b6d4;
+            --accent-color: #f59e0b;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --bg-card: #ffffff;
+            --border-color: #e5e7eb;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--bg-primary);
+            transition: all 0.3s ease;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .focusable:focus {
+            position: static;
+            width: auto;
+            height: auto;
+            padding: 0.5rem;
+            margin: 0;
+            overflow: visible;
+            clip: auto;
+            white-space: normal;
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 0.375rem;
+            z-index: 9999;
+        }
+
+        /* Header Styles */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+
+        }
+
+        .header-logo {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+        }
+
+        /* Optional: Add hover effect */
+        .header-brand:hover .header-logo {
+            transform: scale(1.05);
+            transition: transform 0.3s ease;
+        }
+
+        .header-nav {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .header-nav a {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.2rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .header-nav a:hover {
+            background: var(--bg-secondary);
+            color: var(--primary-color);
+        }
+
+        .site-title {
+            font-size: 1.7rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-top: 5rem;
+            padding: 2rem;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Intro Section */
+        .intro-section {
+            text-align: center;
+            padding: 2rem 0;
+            background: white;
+            color: black;
+            border-radius: 1rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .intro-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .intro-description {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Search Section */
+        .search-section {
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        #subject-search {
+            width: 100%;
+            max-width: 500px;
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 50px;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        #subject-search:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        /* Subject Cards */
+        .subjects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .subject-card {
+            background: var(--bg-card);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .subject-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .subject-card:hover::before {
+            left: 100%;
+        }
+
+        .subject-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--primary-color);
+        }
+
+        .subject-icon {
+            width: 3rem;
+            height: 3rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 0.5rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            margin-right: 1rem;
+        }
+
+        .subject-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+            display: inline;
+
+        }
+
+        .subject-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .subject-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .download-btn:hover {
+            background: var(--primary-dark);
+            transform: scale(1.05);
+        }
+
+        /* Modal Styles */
+        .admin-modal-overlay,
+        .edit-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .admin-modal-overlay.active,
+        .edit-modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .admin-modal,
+        .edit-modal {
+            background: var(--bg-card);
+            border-radius: 1rem;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-xl);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .admin-modal-overlay.active .admin-modal,
+        .edit-modal-overlay.active .edit-modal {
+            transform: scale(1);
+        }
+
+        .admin-modal-header,
+        .edit-modal-header {
+            padding: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .admin-close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            width: 2rem;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .admin-close-btn:hover {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .admin-modal-title,
+        .edit-modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .admin-modal-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .admin-modal-body {
+            padding: 2rem;
+        }
+
+        .admin-error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .admin-form-group,
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .admin-label,
+        .form-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .admin-input,
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .admin-input:focus,
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .admin-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+
+        .admin-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .admin-btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .admin-btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .admin-btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .admin-btn-secondary:hover {
+            background: var(--border-color);
+        }
+
+        /* Dashboard Styles */
+        .admin-dashboard {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-primary);
+            z-index: 4000;
+            overflow-y: auto;
+        }
+
+        .admin-dashboard.active {
+            display: block;
+        }
+
+        .admin-dashboard-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem;
+        }
+
+        .admin-logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .admin-logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .admin-dashboard-nav {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .admin-nav-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .admin-nav-btn.active,
+        .admin-nav-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .admin-dashboard-content {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .admin-section {
+            display: none;
+        }
+
+        .admin-section.active {
+            display: block;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 1rem;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Footer Sections */
+        .footer-sections {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 3rem;
+            overflow: hidden;
+            transition: background-color 0.3s ease;
+        }
+
+        .footer-section {
+            padding: 3rem 2rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .footer-section:last-child {
+            border-bottom: none;
+        }
+
+        .footer-section h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+
+        .footer-section p {
+            color: #6b7280;
+            line-height: 1.7;
+            margin-bottom: 1rem;
+        }
+
+        .contact-info {
+            display: grid;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .contact-item {
+            padding: 1rem;
+            background: #f9fafb;
+            border-radius: 8px;
+            border-left: 4px solid #2563EB;
+            transition: background-color 0.3s ease;
+        }
+
+        .contact-item strong {
+            color: #1f2937;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .search-section {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        #subject-search {
+            width: 100%;
+            max-width: 400px;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        #subject-search:focus {
+            border-color: #2563EB;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .subject-icon {
+            width: 3rem;
+            height: 3rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 0.5rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            margin-right: 1rem;
+            color: white;
+        }
+
+        /* Unique icon styles */
+        .icon-tamil {
+            background: linear-gradient(135deg, #ff6b6b, #ffa500);
+        }
+
+        .icon-english {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+        }
+
+        .icon-statistics {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .icon-java {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+        }
+
+        .icon-html {
+            background: linear-gradient(135deg, #ffecd2, #fcb69f);
+        }
+
+        /* New Footer Styles */
+        .site-footer {
+            background: linear-gradient(135deg, #1f2937, #111827);
+            color: white;
+            margin-top: 4rem;
+            padding: 3rem 0 1rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-column h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #f9fafb;
+        }
+
+        .footer-column p {
+            color: #d1d5db;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: white;
+            text-decoration: none;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .social-link:hover {
+            background: rgba(37, 99, 235, 0.8);
+            border-color: rgba(37, 99, 235, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .footer-contact {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .footer-contact-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #d1d5db;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .footer-contact-item:hover {
+            color: #2563EB;
+        }
+
+        .footer-contact-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            font-size: 1rem;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 1.5rem;
+            text-align: center;
+        }
+
+        .footer-bottom p {
+            color: #9ca3af;
+            font-size: 0.875rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .header-logo {
+                width: 24px;
+                height: 24px;
+            }
+
+            .site-title {
+                font-size: 1.5rem;
+            }
+
+            .header-nav {
+                gap: 1rem;
+            }
+
+            .header-nav a {
+                padding: 0.25rem 0.75rem;
+                font-size: 1.1rem;
+            }
+
+            .main-content {
+                padding: 1rem;
+                margin-top: 6rem;
+                /* Increased because header is taller on mobile */
+            }
+
+            .intro-title {
+                font-size: 1.8rem;
+            }
+
+            .subjects-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-dashboard-nav {
+                flex-direction: column;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Success Message */
+        .success-message {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        /* Upload Area */
+        .upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 1rem;
+            padding: 3rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary-color);
+            background: var(--bg-secondary);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        .file-info {
+            display: none;
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .file-info.active {
+            display: block;
+        }
+
+        /* Table Styles */
+        .files-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-card);
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+        }
+
+        .files-table th {
+            background: var(--bg-secondary);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .files-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .files-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .no-files-message {
+            text-align: center;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .action-btn {
+            padding: 0.25rem 0.5rem;
+            margin: 0 0.25rem;
+            border: none;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .edit-btn {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .edit-btn:hover {
+            background: #d97706;
+        }
+
+        .delete-btn {
+            background: #ef4444;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background: #dc2626;
+        }
+    </style>
+
+</head>
+
+<body>
+    <header class="header">
+        <div class="header-brand">
+            <img src="assets/logo.png" alt="Notes Dock Logo" class="header-logo">
+            <h1 class="site-title">Notes Dock</h1>
+        </div>
+        <nav class="header-nav">
+            <a href="#about"><b>About</b></a>
+            <a href="#contact"><b>Contact</b></a>
+            <a href="#" onclick="openAdminModal(); return false;"><span class="footer-contact-icon"><i
+                        class="fa-solid fa-user-tie"></i></span><b> Admin</b></a>
+        </nav>
+    </header>
+
+
+    <!-- Admin Modal -->
+    <div class="admin-modal-overlay" id="admin-modal-overlay" aria-hidden="true">
+        <div class="admin-modal" role="dialog" aria-modal="true" aria-labelledby="admin-modal-title">
+            <div class="admin-modal-header">
+                <button class="admin-close-btn" onclick="closeAdminModal()" aria-label="Close admin panel">
+                    ×
+                </button>
+                <h2 class="admin-modal-title" id="admin-modal-title">Admin Panel</h2>
+                <p class="admin-modal-subtitle">Please enter your credentials to continue</p>
+            </div>
+            <div class="admin-modal-body">
+                <div class="admin-error" id="admin-error" role="alert" aria-live="assertive">
+                    Invalid username or password. Please try again.
+                </div>
+                <form id="admin-form">
+                    <div class="admin-form-group">
+                        <label for="admin-username" class="admin-label">Username</label>
+                        <input type="text" id="admin-username" name="username" class="admin-input"
+                            placeholder="Enter your username" required>
+                    </div>
+                    <div class="admin-form-group">
+                        <label for="admin-password" class="admin-label">Password</label>
+                        <input type="password" id="admin-password" name="password" class="admin-input"
+                            placeholder="Enter your password" required>
+                    </div>
+                    <div class="admin-buttons">
+                        <button type="button" class="admin-btn admin-btn-secondary" onclick="closeAdminModal()">
+                            Cancel
+                        </button>
+                        <button type="submit" class="admin-btn admin-btn-primary">
+                            Login
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit File Modal -->
+    <div class="edit-modal-overlay" id="edit-modal-overlay" aria-hidden="true">
+        <div class="edit-modal" role="dialog" aria-modal="true">
+            <div class="edit-modal-header">
+                <button class="admin-close-btn" onclick="closeEditModal()" aria-label="Close edit modal">
+                    ×
+                </button>
+                <h2 class="edit-modal-title">Edit File</h2>
+            </div>
+            <div class="edit-modal-body">
+                <form id="edit-form">
+                    <input type="hidden" id="edit-file-id">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="edit-title" class="form-label">Title *</label>
+                            <input type="text" id="edit-title" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-subject" class="form-label">Subject *</label>
+                            <select id="edit-subject" class="form-select" required>
+                                <option value="">Select Subject</option>
+                                <option value="Tamil">Tamil</option>
+                                <option value="English">English</option>
+                                <option value="Statistics">Statistics</option>
+                                <option value="Java">Java</option>
+                                <option value="HTML">HTML</option>
+                                <option value="CSS">CSS</option>
+                                <option value="JavaScript">JavaScript</option>
+                                <option value="Python">Python</option>
+                                <option value="Mathematics">Mathematics</option>
+                                <option value="Physics">Physics</option>
+                                <option value="Chemistry">Chemistry</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-description" class="form-label">Description</label>
+                        <textarea id="edit-description" class="form-textarea"
+                            placeholder="Enter file description..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-url" class="form-label">URL/Link</label>
+                        <input type="url" id="edit-url" class="form-input" placeholder="https://example.com/file.pdf">
+                    </div>
+                    <div class="admin-buttons">
+                        <button type="button" class="admin-btn admin-btn-secondary" onclick="closeEditModal()">
+                            Cancel
+                        </button>
+                        <button type="submit" class="admin-btn admin-btn-primary">
+                            Update File
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div class="admin-dashboard" id="admin-dashboard">
+        <div class="admin-dashboard-header">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1>Admin Dashboard</h1>
+                    <p style="opacity: 0.9; margin: 0;">Manage your notes and files</p>
+                </div>
+                <button class="admin-logout-btn" onclick="logoutAdmin()">Logout</button>
+            </div>
+            <nav class="admin-dashboard-nav">
+                <button class="admin-nav-btn active" onclick="showSection('overview')">Overview</button>
+                <button class="admin-nav-btn" onclick="showSection('upload')">Upload Files</button>
+                <button class="admin-nav-btn" onclick="showSection('manage')">Manage Files</button>
+            </nav>
+        </div>
+
+        <div class="admin-dashboard-content">
+            <!-- Overview Section -->
+            <section id="overview-section" class="admin-section active">
+                <h2>Dashboard Overview</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="total-files">0</div>
+                        <div class="stat-label">Total Files</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="total-subjects">0</div>
+                        <div class="stat-label">Subjects</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="total-downloads">0</div>
+                        <div class="stat-label">Downloads</div>
+                    </div>
+                </div>
+
+                <h3 style="margin: 2rem 0 1rem 0; color: var(--text-primary);">Recent Activity</h3>
+                <div id="recent-activity">
+                    <p class="no-files-message">No recent activity</p>
+                </div>
+            </section>
+
+            <!-- Upload Section -->
+            <section id="upload-section" class="admin-section">
+                <h2>Upload New File</h2>
+                <div class="success-message" id="upload-success">
+                    File uploaded successfully!
+                </div>
+
+                <form id="upload-form">
+                    <div class="upload-area" onclick="document.getElementById('file-input').click()">
+                        <div class="upload-icon">📁</div>
+                        <div class="upload-text">
+                            <strong>Click to browse</strong> or drag and drop files here
+                        </div>
+                        <p style="color: var(--text-secondary); font-size: 0.875rem; margin: 0;">
+                            Supports PDF, DOC, DOCX, JPG, PNG (Max 10MB)
+                        </p>
+                    </div>
+
+                    <input type="file" id="file-input" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" multiple>
+
+                    <div class="file-info" id="file-info">
+                        <p><strong>Selected Files:</strong></p>
+                        <div id="selected-files"></div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="file-title" class="form-label">Title *</label>
+                            <input type="text" id="file-title" class="form-input" placeholder="Enter file title"
+                                required>
+                        </div>
+                        <div class="form-group">
+                            <label for="file-subject" class="form-label">Subject *</label>
+                            <select id="file-subject" class="form-select" required>
+                                <option value="">Select Subject</option>
+                                <option value="Tamil">Tamil</option>
+                                <option value="English">English</option>
+                                <option value="Statistics">Statistics</option>
+                                <option value="Java">Java</option>
+                                <option value="HTML">HTML</option>
+                                <option value="CSS">CSS</option>
+                                <option value="JavaScript">JavaScript</option>
+                                <option value="Python">Python</option>
+                                <option value="Mathematics">Mathematics</option>
+                                <option value="Physics">Physics</option>
+                                <option value="Chemistry">Chemistry</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="file-description" class="form-label">Description</label>
+                        <textarea id="file-description" class="form-textarea"
+                            placeholder="Enter file description..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="file-url" class="form-label">URL/Link (Optional)</label>
+                        <input type="url" id="file-url" class="form-input" placeholder="https://example.com/file.pdf">
+                    </div>
+
+                    <button type="submit" class="admin-btn admin-btn-primary" style="width: auto;">
+                        <span id="upload-btn-text">Upload File</span>
+                    </button>
+                </form>
+            </section>
+
+            <!-- Manage Files Section -->
+            <section id="manage-section" class="admin-section">
+                <h2>Manage Files</h2>
+                <div style="margin-bottom: 2rem;">
+                    <input type="text" id="files-search" class="form-input" placeholder="Search files..."
+                        style="max-width: 300px;">
+                </div>
+
+                <div style="overflow-x: auto;">
+                    <table class="files-table">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Subject</th>
+                                <th>Type</th>
+                                <th>Date Added</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="files-table-body">
+                            <tr>
+                                <td colspan="5" class="no-files-message">No files uploaded yet</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+
+
+
+    <!-- Main Content -->
+    <main id="main-content" class="main-content">
+        <!-- Intro Section -->
+        <section class="intro-section">
+            <h2 class="intro-title">Download Study Notes</h2>
+            <p class="intro-description">
+                Access comprehensive study materials for your courses. Download PDF notes
+                prepared by expert educators to help you excel in your studies.
+            </p>
+        </section>
+
+        <!-- Search Section -->
+        <section class="search-section">
+            <input type="text" id="subject-search" placeholder="Search subjects..." aria-label="Search subjects">
+        </section>
+
+        <!-- Subject Cards -->
+        <section class="subjects-grid" id="subjects-grid" aria-label="Available study subjects">
+            <!-- Dynamic content will be loaded here -->
+        </section>
+    </main>
+
+    <!-- Site Footer -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-grid">
+                <div class="footer-column">
+                    <h3 id="about"><i class="fa-solid fa-circle-info" style="margin-right: 0.5rem;"></i> About Us</h3>
+                    <p>Download comprehensive study notes and excel in your academic journey.We built Notes Dock with a
+                        simple yet powerful mission: to make learning smarter,
+                        sharing easier, and knowledge accessible to everyone.
+                    </p>
+                </div>
+                <!-- <div class="social-links">
+                        <a href="https://instagram.com/noteshub" class="social-link" aria-label="Follow us on Instagram"
+                            target="_blank">
+                            📷
+                        </a>
+                        <a href="mailto:info@noteshub.com" class="social-link" aria-label="Send us an email">
+                            ✉️
+                        </a>
+                        <a href="https://facebook.com/noteshub" class="social-link" aria-label="Follow us on Facebook"
+                            target="_blank">
+                            📘
+                        </a>
+                        <a href="https://twitter.com/noteshub" class="social-link" aria-label="Follow us on Twitter"
+                            target="_blank">
+                            🐦
+                        </a>
+                    </div> -->
+
+
+                <div class="footer-column">
+                    <h3 id="contact"> <i class="fa-regular fa-address-book" style="margin-right: 0.5rem;"></i>Contact
+                        Info</h3>
+                    <div class="footer-contact">
+                        <a href="mailto:info@noteshub.com" class="footer-contact-item">
+                            <span class="footer-contact-icon">
+                                <i class="fa-solid fa-envelope fa-beat"></i>
+                            </span>
+                            notesdock143@gmail.com
+                        </a>
+                        <a href="https://instagram.com/noteshub" class="footer-contact-item">
+                            <span class="footer-contact-icon">
+                                <i class="fa-brands fa-instagram fa-beat"></i>
+                            </span>
+                            notes_dock_ig
+                        </a>
+
+                        <!-- <a href="tel:+919876543210" class="footer-contact-item">
+                            <span class="footer-contact-icon">📱</span>
+                            +91 98765 43210
+                        </a> -->
+                        <!-- <div class="footer-contact-item">
+                            <span class="footer-contact-icon">📍</span>
+                            Tamil Nadu, India
+                        </div> -->
+                        <!-- <div class="footer-contact-item">
+                            <span class="footer-contact-icon">⏰</span>
+                            24/7 Support Available
+                        </div> -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>⏰ 24/7 Support Available</p>
+                <p>&copy; 2025 Notes Dock. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+
+    <script>
+        // Global Variables
+        let files = [];
+        let isAdminLoggedIn = false;
+        let currentUser = null;
+
+        // Sample data for demonstration
+        const sampleSubjects = [
+            {
+                id: 1,
+                name: 'Tamil',
+                description: 'Comprehensive Tamil language notes and literature guides',
+                iconClass: 'icon-tamil',
+                iconSymbol: 'fas fa-language',
+                fileCount: 15,
+                downloads: 1250,
+                files: [
+                    { id: 1, title: 'Tamil Grammar Basics', description: 'Essential grammar rules and examples', url: '', type: 'PDF' },
+                    { id: 2, title: 'Classical Poetry Analysis', description: 'Analysis of famous Tamil poems', url: '#', type: 'PDF' }
+                ]
+            },
+            {
+                id: 2,
+                name: 'English',
+                description: 'English grammar, literature, and communication skills',
+                iconClass: 'icon-english',
+                iconSymbol: 'fas fa-book-open',
+                fileCount: 20,
+                downloads: 1800,
+                files: [
+                    { id: 3, title: 'English Grammar Guide', description: 'Complete grammar reference', url: '#', type: 'PDF' },
+                    { id: 4, title: 'Essay Writing Techniques', description: 'Learn to write effective essays', url: '#', type: 'PDF' }
+                ]
+            },
+            {
+                id: 3,
+                name: 'Statistics',
+                description: 'Statistical methods, probability, and data analysis',
+                iconClass: 'icon-statistics',
+                iconSymbol: 'fas fa-chart-bar',
+                fileCount: 12,
+                downloads: 950,
+                files: [
+                    { id: 5, title: 'Descriptive Statistics', description: 'Mean, median, mode and more', url: '#', type: 'PDF' },
+                    { id: 6, title: 'Probability Theory', description: 'Basic probability concepts', url: '#', type: 'PDF' }
+                ]
+            },
+            {
+                id: 4,
+                name: 'Java',
+                description: 'Java programming concepts and practical examples',
+                iconClass: 'icon-java',
+                iconSymbol: 'fab fa-java',
+                fileCount: 18,
+                downloads: 2100,
+                files: [
+                    { id: 7, title: 'Java Basics', description: 'Introduction to Java programming', url: '#', type: 'PDF' },
+                    { id: 8, title: 'Object-Oriented Programming', description: 'OOP concepts in Java', url: '#', type: 'PDF' }
+                ]
+            },
+            {
+                id: 5,
+                name: 'HTML',
+                description: 'HTML markup language and web development basics',
+                iconClass: 'icon-html',
+                iconSymbol: 'fab fa-html5',
+                fileCount: 10,
+                downloads: 1600,
+                files: [
+                    { id: 9, title: 'HTML Fundamentals', description: 'Basic HTML tags and structure', url: '#', type: 'PDF' },
+                    { id: 10, title: 'Forms and Inputs', description: 'Creating interactive forms', url: '#', type: 'PDF' }
+                ]
+            }
+        ];
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function () {
+            initializeApp();
+        });
+
+        function initializeApp() {
+            loadSubjects();
+            setupEventListeners();
+            updateDashboardStats();
+        }
+
+        function setupEventListeners() {
+
+            // Search functionality
+            const subjectSearch = document.getElementById('subject-search');
+            subjectSearch.addEventListener('input', handleSearch);
+
+            // Admin form
+            const adminForm = document.getElementById('admin-form');
+            adminForm.addEventListener('submit', handleAdminLogin);
+
+            // Upload form
+            const uploadForm = document.getElementById('upload-form');
+            uploadForm.addEventListener('submit', handleFileUpload);
+
+            // File input
+            const fileInput = document.getElementById('file-input');
+            fileInput.addEventListener('change', handleFileSelect);
+
+            // Edit form
+            const editForm = document.getElementById('edit-form');
+            editForm.addEventListener('submit', handleFileEdit);
+
+            // Files search
+            const filesSearch = document.getElementById('files-search');
+            filesSearch.addEventListener('input', handleFilesSearch);
+
+            // Drag and drop
+            const uploadArea = document.querySelector('.upload-area');
+            uploadArea.addEventListener('dragover', handleDragOver);
+            uploadArea.addEventListener('drop', handleDrop);
+        }
+
+        function loadSubjects() {
+            const subjectsGrid = document.getElementById('subjects-grid');
+            subjectsGrid.innerHTML = '';
+
+            sampleSubjects.forEach(subject => {
+                const subjectCard = createSubjectCard(subject);
+                subjectsGrid.appendChild(subjectCard);
+            });
+        }
+
+        function createSubjectCard(subject) {
+            const card = document.createElement('div');
+            card.className = 'subject-card';
+            card.setAttribute('data-subject', subject.name.toLowerCase());
+
+            card.innerHTML = `
+                <div class="subject-icon ${subject.iconClass}">
+                <i class="${subject.iconSymbol}"></i>
+                </div>
+                <h3 class="subject-title">${subject.name}</h3>
+                <p class="subject-description">${subject.description}</p>
+                <div class="subject-stats">
+                    <span>${subject.fileCount} files</span>
+                    <button class="download-btn" onclick="viewSubjectFiles('${subject.name}')">
+                        View Files
+                    </button>
+                </div>
+            `;
+
+            return card;
+        }
+
+        function handleSearch(event) {
+            const searchTerm = event.target.value.toLowerCase();
+            const subjectCards = document.querySelectorAll('.subject-card');
+
+            subjectCards.forEach(card => {
+                const subjectName = card.getAttribute('data-subject');
+                const isVisible = subjectName.includes(searchTerm);
+                card.style.display = isVisible ? 'block' : 'none';
+            });
+        }
+
+        function viewSubjectFiles(subjectName) {
+            const subject = sampleSubjects.find(s => s.name === subjectName);
+            if (subject && subject.files) {
+                alert(`Files available for ${subjectName}:\n\n${subject.files.map(f => `• ${f.title}`).join('\n')}\n\nClick OK to continue...`);
+            } else {
+                alert('No files available for this subject yet.');
+            }
+        }
+
+        // Admin Functions
+        function openAdminModal() {
+            const modal = document.getElementById('admin-modal-overlay');
+            modal.classList.add('active');
+            modal.setAttribute('aria-hidden', 'false');
+            document.getElementById('admin-username').focus();
+        }
+
+        function closeAdminModal() {
+            const modal = document.getElementById('admin-modal-overlay');
+            modal.classList.remove('active');
+            modal.setAttribute('aria-hidden', 'true');
+
+            // Reset form
+            document.getElementById('admin-form').reset();
+            document.getElementById('admin-error').style.display = 'none';
+        }
+
+        function handleAdminLogin(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('admin-username').value;
+            const password = document.getElementById('admin-password').value;
+
+            // Simple authentication (in real app, use proper authentication)
+            if (username === 'admin' && password === 'password') {
+                isAdminLoggedIn = true;
+                currentUser = username;
+                closeAdminModal();
+                showAdminDashboard();
+            } else {
+                document.getElementById('admin-error').style.display = 'block';
+            }
+        }
+
+        function showAdminDashboard() {
+            document.getElementById('admin-dashboard').classList.add('active');
+            updateDashboardStats();
+            loadAdminFiles();
+        }
+
+        function logoutAdmin() {
+            isAdminLoggedIn = false;
+            currentUser = null;
+            document.getElementById('admin-dashboard').classList.remove('active');
+        }
+
+        function showSection(sectionName) {
+            // Hide all sections
+            document.querySelectorAll('.admin-section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Remove active class from all nav buttons
+            document.querySelectorAll('.admin-nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected section
+            document.getElementById(`${sectionName}-section`).classList.add('active');
+
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+
+        function updateDashboardStats() {
+            const totalFiles = files.length || sampleSubjects.reduce((sum, subject) => sum + subject.fileCount, 0);
+            const totalSubjects = sampleSubjects.length;
+            const totalDownloads = sampleSubjects.reduce((sum, subject) => sum + subject.downloads, 0);
+
+            document.getElementById('total-files').textContent = totalFiles;
+            document.getElementById('total-subjects').textContent = totalSubjects;
+            document.getElementById('total-downloads').textContent = totalDownloads.toLocaleString();
+        }
+
+        // File Upload Functions
+        function handleFileSelect(event) {
+            const files = Array.from(event.target.files);
+            displaySelectedFiles(files);
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            event.currentTarget.style.borderColor = 'var(--primary-color)';
+            event.currentTarget.style.background = 'var(--bg-secondary)';
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            const files = Array.from(event.dataTransfer.files);
+            document.getElementById('file-input').files = event.dataTransfer.files;
+            displaySelectedFiles(files);
+
+            event.currentTarget.style.borderColor = 'var(--border-color)';
+            event.currentTarget.style.background = 'transparent';
+        }
+
+        function displaySelectedFiles(selectedFiles) {
+            const fileInfo = document.getElementById('file-info');
+            const selectedFilesDiv = document.getElementById('selected-files');
+
+            if (selectedFiles.length > 0) {
+                fileInfo.classList.add('active');
+                selectedFilesDiv.innerHTML = selectedFiles.map(file =>
+                    `<div style="margin: 0.5rem 0; padding: 0.5rem; background: var(--bg-primary); border-radius: 0.25rem;">
+                        📎 ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)
+                    </div>`
+                ).join('');
+            } else {
+                fileInfo.classList.remove('active');
+            }
+        }
+
+        function handleFileUpload(event) {
+            event.preventDefault();
+
+            const title = document.getElementById('file-title').value;
+            const subject = document.getElementById('file-subject').value;
+            const description = document.getElementById('file-description').value;
+            const url = document.getElementById('file-url').value;
+            const fileInput = document.getElementById('file-input');
+
+            if (!title || !subject) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+
+            // Simulate upload process
+            const uploadBtn = document.getElementById('upload-btn-text');
+            uploadBtn.innerHTML = '<div class="loading"></div> Uploading...';
+
+            setTimeout(() => {
+                // Add file to files array
+                const newFile = {
+                    id: Date.now(),
+                    title: title,
+                    subject: subject,
+                    description: description,
+                    url: url || '#',
+                    type: fileInput.files.length > 0 ? 'PDF' : 'Link',
+                    dateAdded: new Date().toLocaleDateString()
+                };
+
+                files.push(newFile);
+
+                // Show success message
+                document.getElementById('upload-success').style.display = 'block';
+
+                // Reset form
+                document.getElementById('upload-form').reset();
+                document.getElementById('file-info').classList.remove('active');
+
+                // Update dashboard
+                updateDashboardStats();
+                loadAdminFiles();
+
+                uploadBtn.textContent = 'Upload File';
+
+                // Hide success message after 3 seconds
+                setTimeout(() => {
+                    document.getElementById('upload-success').style.display = 'none';
+                }, 3000);
+            }, 2000);
+        }
+
+        function loadAdminFiles() {
+            const tableBody = document.getElementById('files-table-body');
+
+            if (files.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="5" class="no-files-message">No files uploaded yet</td></tr>';
+                return;
+            }
+
+            tableBody.innerHTML = files.map(file => `
+                <tr>
+                    <td>${file.title}</td>
+                    <td>${file.subject}</td>
+                    <td>${file.type}</td>
+                    <td>${file.dateAdded}</td>
+                    <td>
+                        <button class="action-btn edit-btn" onclick="editFile(${file.id})">Edit</button>
+                        <button class="action-btn delete-btn" onclick="deleteFile(${file.id})">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function editFile(fileId) {
+            const file = files.find(f => f.id === fileId);
+            if (!file) return;
+
+            document.getElementById('edit-file-id').value = fileId;
+            document.getElementById('edit-title').value = file.title;
+            document.getElementById('edit-subject').value = file.subject;
+            document.getElementById('edit-description').value = file.description || '';
+            document.getElementById('edit-url').value = file.url || '';
+
+            document.getElementById('edit-modal-overlay').classList.add('active');
+        }
+
+        function closeEditModal() {
+            document.getElementById('edit-modal-overlay').classList.remove('active');
+        }
+
+        function handleFileEdit(event) {
+            event.preventDefault();
+
+            const fileId = parseInt(document.getElementById('edit-file-id').value);
+            const title = document.getElementById('edit-title').value;
+            const subject = document.getElementById('edit-subject').value;
+            const description = document.getElementById('edit-description').value;
+            const url = document.getElementById('edit-url').value;
+
+            const fileIndex = files.findIndex(f => f.id === fileId);
+            if (fileIndex !== -1) {
+                files[fileIndex] = {
+                    ...files[fileIndex],
+                    title,
+                    subject,
+                    description,
+                    url
+                };
+
+                loadAdminFiles();
+                closeEditModal();
+
+                // Show success message
+                alert('File updated successfully!');
+            }
+        }
+
+        function deleteFile(fileId) {
+            if (confirm('Are you sure you want to delete this file?')) {
+                files = files.filter(f => f.id !== fileId);
+                loadAdminFiles();
+                updateDashboardStats();
+            }
+        }
+
+        function handleFilesSearch(event) {
+            const searchTerm = event.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#files-table-body tr');
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                const isVisible = text.includes(searchTerm);
+                row.style.display = isVisible ? '' : 'none';
+            });
+        }
+
+        // Smooth scrolling for anchor links
+        document.addEventListener('click', function (e) {
+            if (e.target.tagName === 'A' && e.target.getAttribute('href').startsWith('#')) {
+                e.preventDefault();
+                const target = document.querySelector(e.target.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function (e) {
+            // Close modals with Escape key
+            if (e.key === 'Escape') {
+                if (document.getElementById('admin-modal-overlay').classList.contains('active')) {
+                    closeAdminModal();
+                }
+                if (document.getElementById('edit-modal-overlay').classList.contains('active')) {
+                    closeEditModal();
+                }
+                if (document.getElementById('sidebar').classList.contains('active')) {
+                    closeSidebar();
+                }
+            }
+
+            // Toggle sidebar with Ctrl+M
+            if (e.ctrlKey && e.key === 'm') {
+                e.preventDefault();
+                toggleSidebar();
+            }
+        });
+
+        // Add loading states and animations
+        function showLoading(element, text = 'Loading...') {
+            const originalContent = element.innerHTML;
+            element.innerHTML = `<div class="loading"></div> ${text}`;
+            element.disabled = true;
+            return originalContent;
+        }
+
+        function hideLoading(element, originalContent) {
+            element.innerHTML = originalContent;
+            element.disabled = false;
+        }
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe elements for animation
+        document.addEventListener('DOMContentLoaded', () => {
+            const animateElements = document.querySelectorAll('.subject-card, .footer-section');
+            animateElements.forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(el);
+            });
+        });
+
+        // Form validation helpers
+        function validateEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        function validateURL(url) {
+            try {
+                new URL(url);
+                return true;
+            } catch {
+                return false;
+            }
+        }
+
+        // Enhanced search with debouncing
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Apply debounced search
+        document.addEventListener('DOMContentLoaded', () => {
+            const subjectSearch = document.getElementById('subject-search');
+            const debouncedSearch = debounce(handleSearch, 300);
+            subjectSearch.addEventListener('input', debouncedSearch);
+        });
+
+        // Toast notification system
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#10b981' : '#ef4444'};
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 0.5rem;
+                box-shadow: var(--shadow-lg);
+                z-index: 5000;
+                opacity: 0;
+                transform: translateY(-20px);
+                transition: all 0.3s ease;
+            `;
+
+            document.body.appendChild(toast);
+
+            // Animate in
+            setTimeout(() => {
+                toast.style.opacity = '1';
+                toast.style.transform = 'translateY(0)';
+            }, 100);
+
+            // Remove after 3 seconds
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-20px)';
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+
+        // Enhanced file upload with progress
+        function uploadFileWithProgress(file, onProgress, onComplete) {
+            // Simulate file upload with progress
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    onComplete();
+                }
+                onProgress(Math.round(progress));
+            }, 200);
+        }
+
+        // Add keyboard shortcuts info
+        function showKeyboardShortcuts() {
+            const shortcuts = `
+                Keyboard Shortcuts:
+                • Ctrl + M: Toggle sidebar
+                • Escape: Close modals/sidebar
+                • Tab: Navigate between elements
+                • Enter: Activate buttons/links
+                • Space: Check/uncheck checkboxes
+            `;
+            alert(shortcuts);
+        }
+
+        // Add to sidebar or help section
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'F1') {
+                e.preventDefault();
+                showKeyboardShortcuts();
+            }
+        });
+
+        // Performance optimization: Lazy loading
+        function lazyLoadImages() {
+            const images = document.querySelectorAll('img[data-src]');
+            const imageObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src;
+                        img.removeAttribute('data-src');
+                        imageObserver.unobserve(img);
+                    }
+                });
+            });
+
+            images.forEach(img => imageObserver.observe(img));
+        }
+
+        // Initialize lazy loading
+        document.addEventListener('DOMContentLoaded', lazyLoadImages);
+
+        // Service Worker registration for PWA features
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch(registrationError => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+
+        // Add print styles handler
+        function handlePrint() {
+            window.print();
+        }
+
+        // Export data functionality
+        function exportData() {
+            const data = {
+                files: files,
+                subjects: sampleSubjects,
+                timestamp: new Date().toISOString()
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], {
+                type: 'application/json'
+            });
+
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `notes-portal-data-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Analytics tracking (placeholder)
+        function trackEvent(action, category, label) {
+            console.log(`Analytics: ${category} - ${action} - ${label}`);
+            // In a real app, you would send this to your analytics service
+        }
+
+        // Add click tracking to important elements
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('download-btn')) {
+                trackEvent('download', 'file', e.target.textContent);
+            }
+            if (e.target.classList.contains('subject-card')) {
+                trackEvent('view', 'subject', e.target.querySelector('.subject-title').textContent);
+            }
+        });
+
+        // Browser compatibility checks
+        function checkBrowserSupport() {
+            const features = {
+                'CSS Grid': 'grid' in document.createElement('div').style,
+                'CSS Custom Properties': window.CSS && CSS.supports('color', 'var(--fake-var)'),
+                'Intersection Observer': 'IntersectionObserver' in window,
+                'Service Worker': 'serviceWorker' in navigator
+            };
+
+            const unsupportedFeatures = Object.entries(features)
+                .filter(([_, supported]) => !supported)
+                .map(([feature]) => feature);
+
+            if (unsupportedFeatures.length > 0) {
+                console.warn('Unsupported features:', unsupportedFeatures);
+                // You might want to show a warning to users with older browsers
+            }
+        }
+
+        // Initialize browser compatibility check
+        document.addEventListener('DOMContentLoaded', checkBrowserSupport);
+
+        // Add offline detection
+        function updateOnlineStatus() {
+            const status = navigator.onLine ? 'online' : 'offline';
+            document.body.setAttribute('data-connection', status);
+
+            if (!navigator.onLine) {
+                showToast('You are currently offline. Some features may be limited.', 'warning');
+            }
+        }
+
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        document.addEventListener('DOMContentLoaded', updateOnlineStatus);
+
+        // Memory cleanup
+        window.addEventListener('beforeunload', () => {
+            // Clean up any intervals, observers, etc.
+            if (observer) observer.disconnect();
+        });
+
+        console.log('🎓 Student Notes Portal - Loaded successfully!');
+        console.log('💡 Tip: Press F1 to see keyboard shortcuts');
+
+    </script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+
+</html>
