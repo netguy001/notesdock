@@ -20,6 +20,7 @@ const subjectData = {
 // Initialize app
 document.addEventListener('DOMContentLoaded', function () {
     console.log('Script loaded');
+    testAPIConnection();
     loadFilesFromBackend();
     initializeFileUpload();
     setupEventListeners();
@@ -27,19 +28,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // Setup event listeners
 function setupEventListeners() {
-    // File input change
     const fileInput = document.getElementById('file-input');
     if (fileInput) {
         fileInput.addEventListener('change', handleFileSelection);
     }
 
-    // Upload form submission
     const uploadForm = document.getElementById('upload-form');
     if (uploadForm) {
         uploadForm.addEventListener('submit', handleFileUpload);
     }
 
-    // Search functionality
     const filesSearch = document.getElementById('files-search');
     if (filesSearch) {
         filesSearch.addEventListener('input', handleFilesSearch);
@@ -51,12 +49,10 @@ function initializeFileUpload() {
     const uploadArea = document.querySelector('.upload-area');
     if (!uploadArea) return;
 
-    // Click to browse
     uploadArea.addEventListener('click', () => {
         document.getElementById('file-input').click();
     });
 
-    // Drag and drop
     uploadArea.addEventListener('dragover', handleDragOver);
     uploadArea.addEventListener('dragleave', handleDragLeave);
     uploadArea.addEventListener('drop', handleDrop);
@@ -103,7 +99,7 @@ function displaySelectedFiles(files) {
         fileInfo.classList.add('active');
         selectedFilesDiv.innerHTML = files.map(file =>
             `<div class="selected-file">
-                ${file.name} (${formatFileSize(file.size)})
+                📎 ${file.name} (${formatFileSize(file.size)})
             </div>`
         ).join('');
     } else {
@@ -140,46 +136,23 @@ async function handleFileUpload(event) {
         formData.append('description', description);
         formData.append('url', url);
 
-        console.log('Uploading to:', `${API_BASE_URL}/files`);
-
         const response = await fetch(`${API_BASE_URL}/files`, {
             method: 'POST',
-            headers: {
-                'Authorization': 'Bearer dummy-token'
-            },
+            headers: { 'Authorization': 'Bearer dummy-token' },
             body: formData
         });
 
-        console.log('Upload response status:', response.status);
-
         if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Upload error response:', errorText);
-            throw new Error(`Upload failed: ${response.status} - ${errorText}`);
+            throw new Error(await response.text());
         }
 
         const result = await response.json();
-        console.log('Upload successful:', result);
-
-        // Show success message
         showToast('File uploaded successfully!', 'success');
 
-        const successDiv = document.getElementById('upload-success');
-        if (successDiv) {
-            successDiv.style.display = 'block';
-            setTimeout(() => {
-                successDiv.style.display = 'none';
-            }, 3000);
-        }
-
-        // Reset form
         event.target.reset();
         document.getElementById('file-info')?.classList.remove('active');
-
-        // Reload files
         loadFilesFromBackend();
         loadAdminFiles();
-
     } catch (error) {
         console.error('Upload error:', error);
         showToast(`Failed to upload file: ${error.message}`, 'error');
@@ -191,41 +164,24 @@ async function handleFileUpload(event) {
     }
 }
 
-// Load files from backend
+// Load files
 async function loadFilesFromBackend() {
     try {
-        console.log('Loading files from:', `${API_BASE_URL}/files`);
-
-        const response = await fetch(`${API_BASE_URL}/files`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-
-        console.log('Load files response status:', response.status);
-
-        if (!response.ok) {
-            throw new Error(`Failed to load files: ${response.status} ${response.statusText}`);
-        }
-
+        const response = await fetch(`${API_BASE_URL}/files`);
+        if (!response.ok) throw new Error(`Failed to load files: ${response.status}`);
         const files = await response.json();
-        console.log('Loaded files:', files);
         updateDashboardStats(files);
         return files;
-
     } catch (error) {
-        console.error('Error loading files:', error);
         showToast(`Failed to load files: ${error.message}`, 'error');
         return [];
     }
 }
 
-// Load files for admin table
+// Admin files table
 async function loadAdminFiles() {
     const files = await loadFilesFromBackend();
     const tableBody = document.getElementById('files-table-body');
-
     if (!tableBody) return;
 
     if (files.length === 0) {
@@ -250,7 +206,6 @@ async function loadAdminFiles() {
 
 // Edit file
 function editFile(fileId) {
-    // This function is called by the HTML, find the file and populate edit form
     loadFilesFromBackend().then(files => {
         const file = files.find(f => f.id === fileId);
         if (!file) return;
@@ -261,43 +216,24 @@ function editFile(fileId) {
         document.getElementById('edit-description').value = file.description || '';
         document.getElementById('edit-url').value = file.url || '';
 
-        const editModal = document.getElementById('edit-modal-overlay');
-        if (editModal) {
-            editModal.classList.add('active');
-        }
+        document.getElementById('edit-modal-overlay')?.classList.add('active');
     });
 }
 
 // Delete file
 async function deleteFile(fileId) {
-    if (!confirm('Are you sure you want to delete this file?')) {
-        return;
-    }
+    if (!confirm('Are you sure you want to delete this file?')) return;
 
     try {
-        console.log('Deleting file:', fileId);
-
         const response = await fetch(`${API_BASE_URL}/files/${fileId}`, {
             method: 'DELETE',
-            headers: {
-                'Authorization': 'Bearer dummy-token',
-                'Content-Type': 'application/json'
-            }
+            headers: { 'Authorization': 'Bearer dummy-token' }
         });
 
-        console.log('Delete response status:', response.status);
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Delete failed: ${response.status} - ${errorText}`);
-        }
-
+        if (!response.ok) throw new Error(await response.text());
         showToast('File deleted successfully', 'success');
         loadAdminFiles();
-        loadFilesFromBackend();
-
     } catch (error) {
-        console.error('Delete error:', error);
         showToast(`Failed to delete file: ${error.message}`, 'error');
     }
 }
@@ -305,15 +241,8 @@ async function deleteFile(fileId) {
 // Download file
 async function downloadFile(fileId, fileName) {
     try {
-        console.log('Downloading file:', fileId, fileName);
-
         const response = await fetch(`${API_BASE_URL}/files/${fileId}/download`);
-
-        console.log('Download response status:', response.status);
-
-        if (!response.ok) {
-            throw new Error(`Download failed: ${response.status} ${response.statusText}`);
-        }
+        if (!response.ok) throw new Error(`Download failed: ${response.status}`);
 
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
@@ -322,50 +251,32 @@ async function downloadFile(fileId, fileName) {
         a.download = fileName;
         document.body.appendChild(a);
         a.click();
-        window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
 
         showToast('Download started', 'success');
-
     } catch (error) {
-        console.error('Download error:', error);
         showToast(`Failed to download file: ${error.message}`, 'error');
     }
 }
 
-// Update dashboard stats
+// Update stats
 function updateDashboardStats(files) {
-    const totalFiles = files.length;
-    const subjects = [...new Set(files.map(f => f.subject))].length;
+    document.getElementById('total-files')?.textContent = files.length;
+    document.getElementById('total-subjects')?.textContent = new Set(files.map(f => f.subject)).size;
 
-    const totalFilesElement = document.getElementById('total-files');
-    const totalSubjectsElement = document.getElementById('total-subjects');
-
-    if (totalFilesElement) totalFilesElement.textContent = totalFiles;
-    if (totalSubjectsElement) totalSubjectsElement.textContent = subjects;
-
-    // Update subject counts
     Object.keys(subjectData).forEach(subject => {
         subjectData[subject].totalFiles = files.filter(f => f.subject === subject).length;
-    });
-
-    // Update subject cards if they exist
-    Object.keys(subjectData).forEach(subject => {
         const countElement = document.getElementById(`${subject}-count`);
-        if (countElement) {
-            countElement.textContent = subjectData[subject].totalFiles;
-        }
+        if (countElement) countElement.textContent = subjectData[subject].totalFiles;
     });
 }
 
-// Search files
+// Search
 function handleFilesSearch(event) {
     const searchTerm = event.target.value.toLowerCase();
-    const rows = document.querySelectorAll('#files-table-body tr');
-
-    rows.forEach(row => {
-        const text = row.textContent.toLowerCase();
-        row.style.display = text.includes(searchTerm) ? '' : 'none';
+    document.querySelectorAll('#files-table-body tr').forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(searchTerm) ? '' : 'none';
     });
 }
 
@@ -382,7 +293,7 @@ function formatDate(dateString) {
     return new Date(dateString).toLocaleDateString();
 }
 
-// Toast notifications
+// Toast
 function showToast(message, type = 'success') {
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
@@ -400,8 +311,6 @@ function showToast(message, type = 'success') {
         opacity: 0;
         transform: translateY(-20px);
         transition: all 0.3s ease;
-        max-width: 400px;
-        word-wrap: break-word;
     `;
 
     document.body.appendChild(toast);
@@ -415,9 +324,7 @@ function showToast(message, type = 'success') {
         toast.style.opacity = '0';
         toast.style.transform = 'translateY(-20px)';
         setTimeout(() => {
-            if (document.body.contains(toast)) {
-                document.body.removeChild(toast);
-            }
+            document.body.removeChild(toast);
         }, 300);
     }, 4000);
 }
@@ -425,24 +332,17 @@ function showToast(message, type = 'success') {
 // Test API connection
 async function testAPIConnection() {
     try {
-        console.log('Testing API connection...');
         const response = await fetch(`${API_BASE_URL}/test`);
         const result = await response.json();
         console.log('API Test Result:', result);
         return result;
     } catch (error) {
-        console.error('API Test Failed:', error);
         showToast('API connection failed', 'error');
         return null;
     }
 }
 
-// Run API test on load
-document.addEventListener('DOMContentLoaded', function () {
-    testAPIConnection();
-});
-
-// Global functions for HTML onclick handlers
+// Expose global functions for HTML onclick handlers
 window.editFile = editFile;
 window.deleteFile = deleteFile;
 window.downloadFile = downloadFile;
